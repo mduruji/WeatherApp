@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -68,17 +69,35 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+data class WeatherData(
+    val location: String,
+    val temperature: Int,
+    val condition: String,
+)
+
+fun getRandomWeather(): WeatherData {
+    val conditions = listOf("Sunny", "Cloudy", "Rainy", "Stormy", "Windy")
+    val condition = conditions.random()
+    val temperature = (10..35).random()
+
+    return WeatherData(
+        location = "New York",
+        temperature = temperature,
+        condition = condition
+    )
+}
+
 @Composable
 fun WeatherCard(
     location: String,
-    temperature: String,
+    temperature: Int,
     condition: String,
-//    icon: Icon
+    icon: String
 ) {
     ElevatedCard(
         modifier = Modifier
-            .width(400.dp)
-            .height(400.dp),
+            .width(350.dp)
+            .height(350.dp),
         shape = RoundedCornerShape(16.dp)
     ){
         Column(
@@ -88,32 +107,53 @@ fun WeatherCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(text = location)
-            Text(text = temperature)
-            Text(text = condition)
-//            Icon(
-//                imageVector = icon,
-//                contentDescription = null
-//            )
+            Text(
+                text = location,
+                style = MaterialTheme.typography.headlineLarge
+            )
+            Text(
+                text = "$temperature°",
+                style = MaterialTheme.typography.displayLarge
+            )
+            Text(
+                text = condition,
+                style = MaterialTheme.typography.headlineMedium
+            )
+            Text(
+                text = icon,
+                style = MaterialTheme.typography.headlineSmall
+            )
+
         }
     }
 }
 
 @Composable
 fun WeatherDisplay() {
-    var location by remember { mutableStateOf("New York") }
-    var temperature by remember { mutableStateOf("72°F") }
-    var condition by remember { mutableStateOf("Sunny") }
+    var weatherData by remember { mutableStateOf(getRandomWeather()) }
+    val (location, temperature, condition) = weatherData
+    val icon = when (condition) {
+        "Sunny" -> "☀️"
+        "Cloudy" -> "☁️"
+        "Rainy" -> "🌧️"
+        "Stormy" -> "⛈️"
+        "Windy" -> "🌬️"
+        else -> ""
+    }
+
 
     WeatherCard(
-        location = "New York",
-        temperature = "72°F",
-        condition = "Sunny",
+        location = location,
+        temperature = temperature,
+        condition = condition,
+        icon = icon
     )
 
     Spacer(modifier = Modifier.height(16.dp))
 
-    Button(onClick = { /*TODO*/ }) {
+    Button(onClick = {
+        weatherData = getRandomWeather()
+    }) {
         Text(text = "Refresh")
     }
 }
